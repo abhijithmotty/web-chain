@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuxWatch - Premium Luxury Timepieces</title>
+  <meta name="description" content="Discover the finest collection of luxury watches from world-renowned brands">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="logo">⌚ LuxWatch</div>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="#" id="myOrdersLink" style="display:none;">My Orders</a></li>
+        <li><a href="/dashboard.html" id="dashboardLink" style="display:none;">Dashboard</a></li>
+        <li><a href="/admin.html" id="adminLink" style="display:none;">Admin</a></li>
+        <li><a href="/login.html" id="loginLink">Login</a></li>
+        <li><a href="#" id="logoutLink" style="display:none;" class="btn btn-secondary btn-small">Logout</a></li>
+        <li><span id="userGreeting" style="display:none; color: var(--gold);"></span></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>Timeless Elegance</h1>
+      <p>Discover the world's most prestigious timepieces, handcrafted to perfection</p>
+      
+      <!-- Search Bar (Vulnerable to SQL Injection) -->
+      <div class="search-bar">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search luxury watches..."
+          autocomplete="off"
+        >
+        <button onclick="searchProducts()">Search</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="container">
+    <h2 class="text-center">Featured Collection</h2>
+    <div id="productsGrid" class="product-grid">
+      <div class="spinner"></div>
+    </div>
+  </section>
+
+  <!-- Product Detail Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalProductName"></h2>
+        <button class="modal-close" onclick="closeProductModal()">&times;</button>
+      </div>
+      <div id="modalProductDetails"></div>
+    </div>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Load products on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProducts();
+      checkLoginStatus();
+    });
+
+    async function loadProducts() {
+      try {
+        const response = await fetch('/api/products');
+        const products = await response.json();
+        displayProducts(products);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        document.getElementById('productsGrid').innerHTML = 
+          '<p style="grid-column: 1/-1; text-align: center; color: var(--error);">Failed to load products</p>';
+      }
+    }
+
+    function displayProducts(products) {
+      const grid = document.getElementById('productsGrid');
+      
+      if (products.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No products found</p>';
+        return;
+      }
+
+      grid.innerHTML = products.map(product => `
+        <div class="product-card fade-in" onclick="viewProduct(${product.id})">
+          <img 
+            src="/images/${product.image}" 
+            alt="${product.name}" 
+            class="product-image"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22280%22%3E%3Crect fill=%22%231a1a1a%22 width=%22300%22 height=%22280%22/%3E%3Ctext fill=%22%23D4AF37%22 font-family=%22serif%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3E⌚%3C/text%3E%3C/svg%3E'"
+          >
+          <div class="product-info">
+            <div class="product-brand">${product.brand}</div>
+            <h3 class="product-name">${product.name}</h3>
+            <div class="product-price">$${product.price.toLocaleString()}</div>
+            <div class="product-stock">${product.stock} in stock</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function searchProducts() {
+      const searchTerm = document.getElementById('searchInput').value;
+      
+      if (!searchTerm.trim()) {
+        loadProducts();
+        return;
+      }
+
+      try {
+        // VULNERABLE: SQL Injection - user input directly in query string
+        const response = await fetch(`/api/search?q=${searchTerm}`);
+        const products = await response.json();
+        
+        if (response.ok) {
+          displayProducts(products);
+        } else {
+          showAlert('Search failed: ' + (products.details || products.error), 'error');
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+        showAlert('Search failed', 'error');
+      }
+    }
+
+    // Allow search on Enter key
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchProducts();
+      }
+    });
+
+    async function viewProduct(productId) {
+      try {
+        const response = await fetch(`/api/products/${productId}`);
+        const product = await response.json();
+        
+        if (!response.ok) {
+          showAlert('Product not found', 'error');
+          return;
+        }
+
+        // Get reviews
+        const reviewsResponse = await fetch(`/api/products/${productId}/reviews`);
+        const reviews = await reviewsResponse.json();
+
+        document.getElementById('modalProductName').textContent = product.name;
+        document.getElementById('modalProductDetails').innerHTML = `
+          <img 
+            src="/images/${product.image}" 
+            alt="${product.name}" 
+            style="width: 100%; border-radius: var(--radius-md); margin-bottom: var(--spacing-md);"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22400%22%3E%3Crect fill=%22%231a1a1a%22 width=%22600%22 height=%22400%22/%3E%3Ctext fill=%22%23D4AF37%22 font-family=%22serif%22 font-size=%2248%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3E⌚%3C/text%3E%3C/svg%3E'"
+          >
+          <div class="product-brand">${product.brand}</div>
+          <p style="color: var(--text-secondary); margin: var(--spacing-md) 0;">${product.description}</p>
+          <div class="product-price">$${product.price.toLocaleString()}</div>
+          <p class="product-stock">${product.stock} in stock</p>
+          
+          <div style="margin-top: var(--spacing-lg);">
+            <label>Quantity:</label>
+            <input type="number" id="orderQuantity" value="1" min="1" max="${product.stock}" style="width: 100px;">
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);" onclick="placeOrder(${product.id})">
+            Add to Cart
+          </button>
+          
+          <hr style="margin: var(--spacing-lg) 0; border: none; border-top: 1px solid var(--dark-border);">
+          
+          <h3>Customer Reviews</h3>
+          <div id="reviewsList">
+            ${reviews.length > 0 ? reviews.map(review => `
+              <div class="review-card">
+                <div class="review-header">
+                  <span class="review-author">${review.username}</span>
+                  <span class="review-rating">${'⭐'.repeat(review.rating)}</span>
+                </div>
+                <!-- VULNERABLE: XSS - comment not sanitized -->
+                <div class="review-comment">${review.comment}</div>
+                <small style="color: var(--text-muted);">${new Date(review.created_at).toLocaleDateString()}</small>
+              </div>
+            `).join('') : '<p style="color: var(--text-muted);">No reviews yet</p>'}
+          </div>
+          
+          <div id="reviewForm" style="margin-top: var(--spacing-lg); display: none;">
+            <h4>Write a Review</h4>
+            <div class="form-group">
+              <label>Rating:</label>
+              <select id="reviewRating">
+                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                <option value="4">⭐⭐⭐⭐ Good</option>
+                <option value="3">⭐⭐⭐ Average</option>
+                <option value="2">⭐⭐ Poor</option>
+                <option value="1">⭐ Terrible</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Comment:</label>
+              <textarea id="reviewComment" placeholder="Share your experience..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="submitReview(${product.id})">Submit Review</button>
+          </div>
+        `;
+
+        // Show review form if logged in
+        const session = getCookie('session');
+        if (session) {
+          document.getElementById('reviewForm').style.display = 'block';
+        }
+
+        document.getElementById('productModal').classList.add('active');
+      } catch (error) {
+        console.error('Error viewing product:', error);
+        showAlert('Failed to load product details', 'error');
+      }
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').classList.remove('active');
+    }
+
+    async function placeOrder(productId) {
+      const session = getCookie('session');
+      if (!session) {
+        showAlert('Please login to place an order', 'warning');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const quantity = document.getElementById('orderQuantity').value;
+
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, quantity: parseInt(quantity) })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showAlert('Order placed successfully!', 'success');
+          closeProductModal();
+        } else {
+          showAlert(result.error || 'Order failed', 'error');
+        }
+      } catch (error) {
+        console.error('Order error:', error);
+        showAlert('Failed to place order', 'error');
+      }
+    }
+
+    async function submitReview(productId) {
+      const rating = document.getElementById('reviewRating').value;
+      const comment = document.getElementById('reviewComment').value;
+
+      if (!comment.trim()) {
+        showAlert('Please enter a comment', 'warning');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, rating: parseInt(rating), comment })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showAlert('Review submitted!', 'success');
+          closeProductModal();
+          viewProduct(productId); // Reload to show new review
+        } else {
+          showAlert(result.error || 'Review submission failed', 'error');
+        }
+      } catch (error) {
+        console.error('Review error:', error);
+        showAlert('Failed to submit review', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

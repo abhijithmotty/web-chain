@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  vulnerable-watch-shop:
+    build: .
+    container_name: luxwatch-vulnerable
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./public/uploads:/app/public/uploads
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+# WARNING: This application is intentionally vulnerable
+# For educational purposes only - DO NOT expose to public internet

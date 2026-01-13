@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - LuxWatch</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">⌚ LuxWatch</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/login.html">User Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 500px; margin-top: var(--spacing-2xl);">
+        <div class="card-glass" style="padding: var(--spacing-xl);">
+            <h1 class="text-center">🔐 Admin Access</h1>
+            <p class="text-center" style="margin-bottom: var(--spacing-xl); color: var(--gold);">
+                Restricted Area - Authorized Personnel Only
+            </p>
+
+            <!-- Admin Login Form -->
+            <form id="adminLoginForm" onsubmit="return handleAdminLogin(event)">
+                <div class="form-group">
+                    <label for="username">Admin Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Admin Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+                    Admin Login
+                </button>
+            </form>
+
+            <div
+                style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: rgba(212, 175, 55, 0.1); border-radius: var(--radius-md);">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">
+                    <strong>Admin Demo:</strong><br>
+                    Username: admin<br>
+                    Password: admin123
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Check if already logged in as admin
+        window.addEventListener('DOMContentLoaded', async () => {
+            const session = getCookie('session');
+            if (session) {
+                try {
+                    const response = await fetch('/api/user');
+                    if (response.ok) {
+                        const user = await response.json();
+                        if (user.role === 'admin') {
+                            window.location.href = '/admin.html';
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+
+        // VULNERABLE: SQL Injection in admin login
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    if (result.user.role === 'admin') {
+                        showAlert('Admin login successful!', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/admin.html';
+                        }, 1000);
+                    } else {
+                        showAlert('Admin access required', 'error');
+                        deleteCookie('session');
+                    }
+                } else {
+                    showAlert(result.error || 'Admin login failed', 'error');
+                    if (result.details) {
+                        console.log('SQL Error:', result.details);
+                    }
+                }
+            } catch (error) {
+                console.error('Admin login error:', error);
+                showAlert('Admin login failed', 'error');
+            }
+
+            return false;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LuxWatch</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">⌚ LuxWatch</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin-login.html">Admin Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 500px; margin-top: var(--spacing-2xl);">
+        <div class="card-glass" style="padding: var(--spacing-xl);">
+            <h1 class="text-center">Welcome Back</h1>
+            <p class="text-center" style="margin-bottom: var(--spacing-xl);">Login to your account</p>
+
+            <div id="alertContainer"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="return handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+                    Login
+                </button>
+            </form>
+
+            <p class="text-center" style="margin-top: var(--spacing-lg);">
+                Don't have an account?
+                <a href="#" onclick="showRegisterForm(); return false;">Register here</a>
+            </p>
+
+            <div
+                style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: rgba(212, 175, 55, 0.1); border-radius: var(--radius-md);">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">
+                    <strong>Demo Credentials:</strong><br>
+                    User: user / user123<br>
+                    Admin: admin / admin123
+                </p>
+            </div>
+        </div>
+
+        <!-- Register Form (Hidden by default) -->
+        <div id="registerFormContainer" class="card-glass"
+            style="padding: var(--spacing-xl); margin-top: var(--spacing-lg); display: none;">
+            <h2 class="text-center">Create Account</h2>
+            <p class="text-center" style="margin-bottom: var(--spacing-xl);">Join LuxWatch today</p>
+
+            <form id="registerForm" onsubmit="return handleRegister(event)">
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <input type="text" id="regUsername" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+                    Register
+                </button>
+            </form>
+
+            <p class="text-center" style="margin-top: var(--spacing-lg);">
+                Already have an account?
+                <a href="#" onclick="hideRegisterForm(); return false;">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = getCookie('session');
+            if (session) {
+                fetch('/api/user')
+                    .then(res => res.json())
+                    .then(user => {
+                        if (user.role === 'admin') {
+                            window.location.href = '/admin.html';
+                        } else {
+                            window.location.href = '/dashboard.html';
+                        }
+                    })
+                    .catch(() => { });
+            }
+        });
+
+        function showRegisterForm() {
+            document.getElementById('registerFormContainer').style.display = 'block';
+            document.getElementById('registerFormContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideRegisterForm() {
+            document.getElementById('registerFormContainer').style.display = 'none';
+        }
+
+        // VULNERABLE: SQL Injection in login
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showAlert('Login successful!', 'success');
+
+                    setTimeout(() => {
+                        if (result.user.role === 'admin') {
+                            window.location.href = '/admin.html';
+                        } else {
+                            window.location.href = '/dashboard.html';
+                        }
+                    }, 1000);
+                } else {
+                    showAlert(result.error || 'Login failed', 'error');
+                    // Show SQL error details for demonstration
+                    if (result.details) {
+                        console.log('SQL Error:', result.details);
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Login failed', 'error');
+            }
+
+            return false;
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!validateEmail(email)) {
+                showAlert('Please enter a valid email', 'warning');
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showAlert('Registration successful! Please login.', 'success');
+                    hideRegisterForm();
+                    document.getElementById('username').value = username;
+                    document.getElementById('password').value = '';
+                } else {
+                    showAlert(result.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showAlert('Registration failed', 'error');
+            }
+
+            return false;
+        }
+    </script>
+</body>
+
+</html>
