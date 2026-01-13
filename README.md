@@ -4,14 +4,14 @@ Intentionally vulnerable web applications for security training and web attack c
 
 ## 🎯 Applications
 
-### 🏦 [bank](./bank/) - Banking Application
+### 🏦 [bank](./Bank/) - Banking Application
 Vulnerable banking platform with user accounts, transfers, and admin panel.
 - **Port**: 5000
 - **Login**: admin/admin123
 
 ### ⌚ [luxwatch](./luxwatch/) - Luxury Watch Shop
 E-commerce platform for premium timepieces with shopping cart and inventory management.
-- **Port**: 5001
+- **Port**: 3000
 - **Login**: admin/admin123
 
 ## 🚀 Quick Start
