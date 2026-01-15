@@ -111,16 +111,14 @@ web-chain/
 └── ATTACK_SCENARIOS.md   # Step-by-step attack examples
 ```
 
-## 🎓 For Webinar Attendees
 
-1. **Pull the Docker image** (to be provided by presenter)
+1. **Pull the Docker image**
 2. **Run the container:**
    ```bash
    docker-compose up
    ```
 3. **Access the application:** http://localhost:3000
-4. **Follow along** with the demonstration
-5. **Try the attacks** yourself in your local environment
+4. **Try the attacks** yourself in your local environment
 
 ## 📚 Documentation
 
