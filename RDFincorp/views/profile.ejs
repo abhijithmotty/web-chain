@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - RDFincorp</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/profile.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="18" stroke="#4c6fff" stroke-width="2" />
+                    <path d="M20 10 L20 30 M12 20 L28 20" stroke="#4c6fff" stroke-width="2" />
+                </svg>
+                <span>RDFincorp</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="/user/dashboard" class="nav-item">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">💳</span>
+                    <span>My Wallets</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">📝</span>
+                    <span>Transactions</span>
+                </a>
+                <a href="/user/apply-card" class="nav-item">
+                    <span class="icon">🎴</span>
+                    <span>Apply Card</span>
+                </a>
+                <a href="/user/apply-loan" class="nav-item">
+                    <span class="icon">💰</span>
+                    <span>Apply Loan</span>
+                </a>
+                <a href="/user/profile" class="nav-item active">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/auth/logout" class="nav-item">
+                    <span class="icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>My Profile</h1>
+                <div class="user-info">
+                    <span class="user-name">
+                        <%= user.full_name %>
+                    </span>
+                    <div class="user-avatar">
+                        <%= user.full_name.charAt(0) %>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="profile-container">
+                    <% if (success) { %>
+                        <div class="success-alert">
+                            <%= success %>
+                        </div>
+                        <% } %>
+                            <% if (error) { %>
+                                <div class="error-alert">
+                                    <%= error %>
+                                </div>
+                                <% } %>
+
+                                    <!-- Profile Information -->
+                                    <section class="profile-section">
+                                        <h2>Personal Information</h2>
+                                        <p class="section-description">Update your account information. ⚠️ No CSRF
+                                            protection!</p>
+
+                                        <form action="/user/profile" method="POST" class="profile-form">
+                                            <div class="form-group">
+                                                <label>Full Name</label>
+                                                <input type="text" name="full_name" value="<%= user.full_name %>"
+                                                    required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Email Address</label>
+                                                <input type="email" name="email" value="<%= user.email %>" required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>New Password</label>
+                                                <input type="password" name="password"
+                                                    placeholder="Leave blank to keep current password">
+                                                <p class="help-text">⚠️ Passwords are stored in plaintext (intentionally
+                                                    vulnerable!)</p>
+                                            </div>
+
+                                            <button type="submit" class="btn-submit">Update Profile</button>
+                                        </form>
+                                    </section>
+
+                                    <!-- Account Details -->
+                                    <section class="profile-section">
+                                        <h2>Account Details</h2>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Account Number</span>
+                                                <span class="info-value">
+                                                    <%= user.account_number %>
+                                                </span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Account Balance</span>
+                                                <span class="info-value">$<%= user.balance.toFixed(2) %></span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Credit Score</span>
+                                                <span class="info-value">
+                                                    <%= user.credit_score %>
+                                                </span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Member Since</span>
+                                                <span class="info-value">
+                                                    <%= new Date(user.created_at).toLocaleDateString() %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

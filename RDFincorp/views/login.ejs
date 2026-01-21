@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - RDFincorp</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo-section">
+                <div class="logo-circle">
+                    <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+                        <circle cx="25" cy="25" r="22" stroke="url(#gradient)" stroke-width="2" />
+                        <path d="M25 12 L25 38 M15 25 L35 25" stroke="url(#gradient)" stroke-width="2" />
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#8B7355;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#D4AF37;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+
+            <h1>Login</h1>
+            <p class="subtitle">Welcome back to RDFincorp Banking</p>
+
+            <% if (error) { %>
+                <div class="error-box">
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <form action="/auth/login" method="POST">
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="Enter your email address" required />
+                        </div>
+
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" name="password" placeholder="Enter your password" required />
+                        </div>
+
+                        <button type="submit" class="login-button">Login</button>
+                    </form>
+
+                    <div class="divider-text">Or log in with</div>
+
+                    <div class="social-buttons">
+                        <button class="social-btn">
+                            <span>🔵</span>
+                        </button>
+                        <button class="social-btn">
+                            <span>🔴</span>
+                        </button>
+                        <button class="social-btn">
+                            <span>⚫</span>
+                        </button>
+                    </div>
+
+                    <div class="signup-footer">
+                        Already have an account? <a href="/auth/register">Sign In</a>
+                    </div>
+
+                    <div class="credentials-info">
+                        <div class="info-title">Default Test Accounts</div>
+                        <div class="info-item">
+                            <span>Admin:</span> admin@rdfincorp.com / admin123
+                        </div>
+                        <div class="info-item">
+                            <span>User:</span> john.doe@example.com / password123
+                        </div>
+                    </div>
+        </div>
+    </div>
+</body>
+
+</html>
