@@ -4,7 +4,7 @@ Intentionally vulnerable web applications for security training and web attack c
 
 ## 🎯 Applications
 
-### 🏦 [bank](./Bank/) - Banking Application
+### 🏦 [RDFincorp](./RDFincorp/) - Banking Application
 Vulnerable banking platform with user accounts, transfers, and admin panel.
 - **Port**: 5000
 - **Login**: admin/admin123
