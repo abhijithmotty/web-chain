@@ -25,6 +25,13 @@ sudo docker-compose up -d --build
 
 ### Manual Setup
 
+We provide automated setup scripts for your convenience:
+
+- **Windows**: Double-click `setup.bat` or run it in your command prompt.
+- **Linux/macOS**: Run `./setup.sh` in your terminal.
+
+Alternatively, you can set it up manually:
+
 ```bash
 # Install dependencies
 npm install
@@ -52,6 +59,10 @@ npm start
 ---
 
 ## ✨ Features
+
+### Application Modes
+- **Difficulty Levels**: Toggle between Easy, Medium, and Hard modes to control vulnerability realism and security hints.
+- **Security Hardened Routing**: Role-based access controls and BFCache prevention to ensure realistic session behavior.
 
 ### User Features
 - Account dashboard with balance overview
