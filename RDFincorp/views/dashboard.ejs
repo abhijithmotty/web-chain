@@ -4,11 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - RDFincorp</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Dashboard — RDFincorp Banking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/difficulty.css">
 </head>
 
-<body>
+<body data-difficulty="<%= difficulty %>" data-locked="<%= difficultyLocked %>">
     <div class="dashboard">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -25,13 +30,9 @@
                     <span class="icon">📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <span class="icon">💳</span>
-                    <span>My Wallets</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="icon">📝</span>
-                    <span>Transactions</span>
+                <a href="/user/activity" class="nav-item">
+                    <span class="icon">📋</span>
+                    <span>Activity Log</span>
                 </a>
                 <a href="/user/apply-card" class="nav-item">
                     <span class="icon">🎴</span>
@@ -45,10 +46,14 @@
                     <span class="icon">👤</span>
                     <span>Profile</span>
                 </a>
+                <a href="/user/export" class="nav-item">
+                    <span class="icon">📤</span>
+                    <span>Export Data</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="/auth/logout" class="nav-item">
+                <a href="/auth/logout" class="nav-item" id="logoutBtn">
                     <span class="icon">🚪</span>
                     <span>Logout</span>
                 </a>
@@ -60,12 +65,8 @@
             <header class="top-bar">
                 <h1>Dashboard</h1>
                 <div class="user-info">
-                    <span class="user-name">
-                        <%= user.full_name %>
-                    </span>
-                    <div class="user-avatar">
-                        <%= user.full_name.charAt(0) %>
-                    </div>
+                    <span class="user-name"><%= user.full_name %></span>
+                    <div class="user-avatar"><%= user.full_name.charAt(0) %></div>
                 </div>
             </header>
 
@@ -76,8 +77,7 @@
                         <div class="card-header">
                             <div>
                                 <p class="label">Total Balance</p>
-                                <h2 class="balance-amount">$<%= user.balance.toFixed(2) %>
-                                </h2>
+                                <h2 class="balance-amount">$<%= user.balance.toFixed(2) %></h2>
                                 <p class="balance-change">
                                     <span class="positive">+2.5%</span> from last month
                                 </p>
@@ -87,24 +87,26 @@
                                 <button class="btn-month">This Month</button>
                             </div>
                         </div>
+                        <p class="account-info">Account: <strong><%= user.account_number %></strong></p>
                     </div>
 
                     <div class="quick-stats">
                         <div class="stat-card">
                             <p class="stat-label">Credit Score</p>
-                            <h3 class="stat-value">
-                                <%= user.credit_score %>
-                            </h3>
+                            <h3 class="stat-value"><%= user.credit_score %></h3>
                             <p class="stat-trend <%= user.credit_score > 700 ? 'positive' : 'negative' %>">
-                                <%= user.credit_score> 700 ? 'Excellent' : 'Good' %>
+                                <%= user.credit_score > 750 ? '⭐ Excellent' : user.credit_score > 700 ? '✅ Good' : user.credit_score > 650 ? '⚠️ Fair' : '❌ Poor' %>
                             </p>
                         </div>
                         <div class="stat-card">
                             <p class="stat-label">Active Cards</p>
-                            <h3 class="stat-value">
-                                <%= cards.filter(c=> c.status === 'active').length %>
-                            </h3>
+                            <h3 class="stat-value"><%= cards.filter(c => c.status === 'active').length %></h3>
                             <p class="stat-trend">Total credit cards</p>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">Member Since</p>
+                            <h3 class="stat-value" style="font-size:16px"><%= new Date(user.created_at).toLocaleDateString('en-US', {month:'short', year:'numeric'}) %></h3>
+                            <p class="stat-trend">Account age</p>
                         </div>
                     </div>
                 </div>
@@ -117,20 +119,20 @@
                     </div>
 
                     <div class="cards-grid">
-                        <% cards.forEach((card, index)=> { %>
+                        <% if (cards.length === 0) { %>
+                            <p class="no-data">No cards found. <a href="/user/apply-card">Apply for one</a>.</p>
+                        <% } %>
+                        <% cards.forEach((card, index) => { %>
                             <div class="credit-card <%= card.card_type %>">
                                 <div class="card-header-info">
                                     <span class="card-bank">RDFincorp</span>
-                                    <span class="card-type">
-                                        <%= card.card_type.toUpperCase() %>
-                                    </span>
+                                    <span class="card-type"><%= card.card_type.toUpperCase() %></span>
                                 </div>
                                 <div class="card-chip">
                                     <svg width="40" height="30" viewBox="0 0 40 30">
                                         <rect width="40" height="30" rx="4" fill="url(#chipGradient<%= index %>)" />
                                         <defs>
-                                            <linearGradient id="chipGradient<%= index %>" x1="0%" y1="0%" x2="100%"
-                                                y2="100%">
+                                            <linearGradient id="chipGradient<%= index %>" x1="0%" y1="0%" x2="100%" y2="100%">
                                                 <stop offset="0%" style="stop-color:#FFD700" />
                                                 <stop offset="100%" style="stop-color:#FFA500" />
                                             </linearGradient>
@@ -156,14 +158,14 @@
                         <% }); %>
                     </div>
                 </section>
-                
+
                 <!-- Transactions Section -->
                 <section class="transactions-section">
                     <div class="section-header">
                         <h3>Recent Transactions</h3>
-                        <a href="#" class="btn-view-all">View All →</a>
+                        <a href="/user/activity" class="btn-view-all">View All →</a>
                     </div>
-                    
+
                     <div class="transactions-list">
                         <% if (transactions.length === 0) { %>
                             <p class="no-data">No transactions yet</p>
@@ -171,88 +173,81 @@
                             <% transactions.forEach(tx => { %>
                                 <div class="transaction-item">
                                     <div class="tx-icon <%= tx.transaction_type %>">
-                                        <%= tx.transaction_type === ' transfer' ? '→' : '💳' %>
+                                        <%= tx.from_user_id == user.id ? '→' : '←' %>
+                                    </div>
+                                    <div class="tx-info">
+                                        <p class="tx-name">
+                                            <% if (tx.from_user_id == user.id) { %>
+                                                To: <%= tx.to_name || 'External' %>
+                                            <% } else { %>
+                                                From: <%= tx.from_name || 'External' %>
+                                            <% } %>
+                                        </p>
+                                        <p class="tx-date"><%= new Date(tx.created_at).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'}) %></p>
+                                        <% if (tx.notes) { %><p class="tx-notes"><%= tx.notes %></p><% } %>
+                                    </div>
+                                    <div class="tx-amount <%= tx.from_user_id == user.id ? 'negative' : 'positive' %>">
+                                        <%= tx.from_user_id == user.id ? '-' : '+' %>$<%= tx.amount.toFixed(2) %>
+                                    </div>
                                 </div>
-                                <div class="tx-info">
-                                    <p class="tx-name">
-                                        <% if (tx.from_user_id==user.id) { %>
-                                            To: <%= tx.to_name %>
-                                                <% } else { %>
-                                                    From: <%= tx.from_name %>
-                                                        <% } %>
-                                    </p>
-                                    <p class="tx-date">
-                                        <%= new Date(tx.created_at).toLocaleDateString() %>
-                                    </p>
-                                </div>
-                                <div class="tx-amount <%= tx.from_user_id == user.id ? 'negative' : 'positive' %>">
-                                    <%= tx.from_user_id==user.id ? '-' : '+' %>$<%= tx.amount.toFixed(2) %>
-                                </div>
-                            </div>
                             <% }); %>
-                                <% } %>
+                        <% } %>
                     </div>
                 </section>
 
                 <!-- Loan Notifications -->
-                <% if (recentLoans && recentLoans.length> 0) { %>
+                <% if (recentLoans && recentLoans.length > 0) { %>
                     <section class="notifications-section">
                         <h3>Recent Loan Updates</h3>
                         <div class="notifications-list">
-                            <% recentLoans.forEach(loan=> { %>
+                            <% recentLoans.forEach(loan => { %>
                                 <div class="notification-item <%= loan.status %>">
-                                    <div class="notif-icon">
-                                        <%= loan.status==='approved' ? '✅' : '❌' %>
-                                    </div>
+                                    <div class="notif-icon"><%= loan.status === 'approved' ? '✅' : '❌' %></div>
                                     <div class="notif-content">
-                                        <p class="notif-title">
-                                            Loan <%= loan.status==='approved' ? 'Approved' : 'Rejected' %>
-                                        </p>
+                                        <p class="notif-title">Loan <%= loan.status === 'approved' ? 'Approved' : 'Rejected' %></p>
                                         <p class="notif-details">
                                             Amount: $<%= loan.amount.toFixed(2) %>
-                                                <% if (loan.status==='approved' ) { %>
-                                                    - Credited to your account
-                                                    <% } %>
+                                            <% if (loan.status === 'approved') { %> — Credited to your account<% } %>
                                         </p>
                                         <% if (loan.admin_notes) { %>
-                                            <p class="notif-notes">
-                                                <%= loan.admin_notes %>
-                                            </p>
-                                            <% } %>
+                                            <p class="notif-notes"><%= loan.admin_notes %></p>
+                                        <% } %>
                                     </div>
-                                    <div class="notif-date">
-                                        <%= new Date(loan.reviewed_at).toLocaleDateString() %>
-                                    </div>
+                                    <div class="notif-date"><%= new Date(loan.reviewed_at).toLocaleDateString() %></div>
                                 </div>
-                                <% }); %>
+                            <% }); %>
                         </div>
                     </section>
-                    <% } %>
+                <% } %>
 
-                        <!-- Quick Transfer -->
-                        <section class="transfer-section">
-                            <h3>Quick Transfer</h3>
-                            <form id="transferForm" class="transfer-form">
-                                <input type="hidden" name="from_user_id" value="<%= user.id %>">
-                                <div class="form-row">
-                                    <input type="text" name="to_account" placeholder="Recipient Account Number"
-                                        required>
-                                    <input type="number" name="amount" placeholder="Amount" step="0.01" required>
-                                </div>
-                                <input type="text" name="notes" placeholder="Notes (optional)">
-                                <button type="submit" class="btn-transfer">Transfer Now</button>
-                            </form>
-                            <div id="transferMessage"></div>
-                        </section>
-
-                        <p class="account-info">Your Account: <strong>
-                                <%= user.account_number %>
-                            </strong></p>
+                <!-- Quick Transfer -->
+                <section class="transfer-section">
+                    <h3>Quick Transfer</h3>
+                    <form id="transferForm" class="transfer-form">
+                        <input type="hidden" name="from_user_id" value="<%= user.id %>">
+                        <div class="form-row">
+                            <input type="text" name="to_account" placeholder="Recipient Account Number" required>
+                            <input type="number" name="amount" placeholder="Amount ($)" step="0.01" min="0.01" required>
+                        </div>
+                        <input type="text" name="notes" placeholder="Notes (optional)">
+                        <button type="submit" class="btn-transfer">Transfer Now</button>
+                    </form>
+                    <div id="transferMessage"></div>
+                </section>
             </div>
         </main>
     </div>
 
+    <style>
+        .transfer-msg { padding:10px 14px; border-radius:8px; margin-top:8px; font-size:13px; }
+        .transfer-msg.success { background:rgba(0,200,83,0.12); border:1px solid rgba(0,200,83,0.3); color:#69f0ae; }
+        .transfer-msg.error   { background:rgba(213,0,0,0.12);  border:1px solid rgba(213,0,0,0.3);  color:#ff8a80; }
+        .tx-notes { font-size:11px; color:#64748b; margin-top:2px; }
+        #logoutBtn:hover { color: #ff8a80 !important; }
+    </style>
+
     <script src="/js/dashboard.js"></script>
+    <script src="/js/difficulty.js"></script>
 </body>
 
 </html>
