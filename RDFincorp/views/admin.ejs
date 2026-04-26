@@ -4,11 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - RDFincorp</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Admin Dashboard — RDFincorp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/difficulty.css">
 </head>
 
-<body>
+<body data-difficulty="<%= difficulty %>" data-locked="<%= difficultyLocked %>">
     <div class="admin-dashboard">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -22,31 +27,31 @@
 
             <nav class="nav-menu">
                 <a href="/admin/dashboard" class="nav-item active">
-                    <span class="icon">📊</span>
-                    <span>Dashboard</span>
+                    <span class="icon">📊</span><span>Dashboard</span>
+                </a>
+                <a href="#security" class="nav-item">
+                    <span class="icon">🛡️</span><span>Security</span>
                 </a>
                 <a href="#users" class="nav-item">
-                    <span class="icon">👥</span>
-                    <span>Users</span>
+                    <span class="icon">👥</span><span>Users</span>
                 </a>
                 <a href="#loans" class="nav-item">
-                    <span class="icon">💰</span>
-                    <span>Loans</span>
+                    <span class="icon">💰</span><span>Loans</span>
                 </a>
                 <a href="#cards" class="nav-item">
-                    <span class="icon">💳</span>
-                    <span>Card Applications</span>
+                    <span class="icon">💳</span><span>Card Applications</span>
                 </a>
                 <a href="#transactions" class="nav-item">
-                    <span class="icon">🔄</span>
-                    <span>Transactions</span>
+                    <span class="icon">🔄</span><span>Transactions</span>
+                </a>
+                <a href="#audit" class="nav-item">
+                    <span class="icon">🔍</span><span>Audit Log</span>
                 </a>
             </nav>
 
             <div class="sidebar-footer">
                 <a href="/auth/logout" class="nav-item">
-                    <span class="icon">🚪</span>
-                    <span>Logout</span>
+                    <span class="icon">🚪</span><span>Logout</span>
                 </a>
             </div>
         </aside>
@@ -57,9 +62,7 @@
                 <h1>Admin Dashboard</h1>
                 <div class="admin-info">
                     <span class="badge admin-badge">ADMIN</span>
-                    <span class="admin-name">
-                        <%= admin.userName %>
-                    </span>
+                    <span class="admin-name"><%= admin.userName %></span>
                 </div>
             </header>
 
@@ -70,193 +73,203 @@
                         <div class="stat-icon users">👥</div>
                         <div class="stat-details">
                             <p class="stat-label">Total Users</p>
-                            <h3 class="stat-value">
-                                <%= stats.totalUsers %>
-                            </h3>
+                            <h3 class="stat-value"><%= stats.totalUsers %></h3>
                         </div>
                     </div>
-
                     <div class="stat-card">
                         <div class="stat-icon loans">💰</div>
                         <div class="stat-details">
                             <p class="stat-label">Pending Loans</p>
-                            <h3 class="stat-value">
-                                <%= stats.pendingLoans %>
-                            </h3>
+                            <h3 class="stat-value"><%= stats.pendingLoans %></h3>
                         </div>
                     </div>
-
                     <div class="stat-card">
                         <div class="stat-icon cards">💳</div>
                         <div class="stat-details">
                             <p class="stat-label">Pending Cards</p>
-                            <h3 class="stat-value">
-                                <%= stats.pendingCards %>
-                            </h3>
+                            <h3 class="stat-value"><%= stats.pendingCards %></h3>
                         </div>
                     </div>
-
                     <div class="stat-card">
                         <div class="stat-icon transactions">🔄</div>
                         <div class="stat-details">
                             <p class="stat-label">Total Transactions</p>
-                            <h3 class="stat-value">
-                                <%= stats.totalTransactions %>
-                            </h3>
+                            <h3 class="stat-value"><%= stats.totalTransactions %></h3>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-color: rgba(255,71,71,0.4)">
+                        <div class="stat-icon" style="background:rgba(255,71,71,0.15)">🚨</div>
+                        <div class="stat-details">
+                            <p class="stat-label">Critical Alerts</p>
+                            <h3 class="stat-value" style="color:#ff5555"><%= stats.criticalAlerts %></h3>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pending Loan Approvals -->
-                <section class="section" id="loans">
-                    <div class="section-header">
-                        <h2>Pending Loan Applications</h2>
-                        <span class="count-badge">
-                            <%= pendingLoans.length %>
-                        </span>
-                    </div>
+                <!-- ══════════════════════════════════════════ -->
+                <!-- Security Settings (Difficulty Control)     -->
+                <!-- ══════════════════════════════════════════ -->
+                <section class="section" id="security">
+                    <div class="security-settings-card">
+                        <h2>🛡️ Security Settings — Difficulty Level</h2>
+                        <p style="color:#64748b;font-size:13px;margin-bottom:20px">
+                            Control attack surface complexity. Users can toggle unless locked.
+                        </p>
 
-                    <div class="table-container">
-                        <% if (pendingLoans.length===0) { %>
-                            <p class="no-data">No pending loan applications</p>
-                            <% } else { %>
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Applicant</th>
-                                            <th>Email</th>
-                                            <th>Amount</th>
-                                            <th>Purpose</th>
-                                            <th>Credit Score</th>
-                                            <th>Applied Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% pendingLoans.forEach(loan=> { %>
-                                            <tr>
-                                                <td>
-                                                    <%= loan.full_name %>
-                                                </td>
-                                                <td>
-                                                    <%= loan.email %>
-                                                </td>
-                                                <td class="amount">$<%= loan.amount.toFixed(2) %>
-                                                </td>
-                                                <td>
-                                                    <%- loan.purpose %>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="credit-score <%= loan.credit_score > 700 ? 'excellent' : loan.credit_score > 650 ? 'good' : 'fair' %>">
-                                                        <%= loan.credit_score %>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <%= new Date(loan.applied_at).toLocaleDateString() %>
-                                                </td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                        <form action="/admin/approve-loan/<%= loan.id %>" method="POST"
-                                                            style="display: inline;">
-                                                            <input type="hidden" name="action" value="approve">
-                                                            <input type="hidden" name="notes"
-                                                                value="Approved based on good credit history">
-                                                            <button type="submit" class="btn-approve">✓ Approve</button>
-                                                        </form>
-                                                        <form action="/admin/approve-loan/<%= loan.id %>" method="POST"
-                                                            style="display: inline;">
-                                                            <input type="hidden" name="action" value="reject">
-                                                            <input type="hidden" name="notes"
-                                                                value="Insufficient credit score">
-                                                            <button type="submit" class="btn-reject">✗ Reject</button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                    </tbody>
-                                </table>
-                                <% } %>
+                        <div class="admin-diff-grid">
+                            <button class="admin-diff-btn easy <%= difficulty === 'easy' ? 'active' : '' %>"
+                                    onclick="selectDiff('easy')" id="btn-easy">
+                                <span class="diff-emoji">🟢</span>
+                                <span class="diff-name">Easy</span>
+                                <span class="diff-status">
+                                    <%= difficulty === 'easy' ? '✓ Active' : 'Basic vulns' %>
+                                </span>
+                            </button>
+                            <button class="admin-diff-btn medium <%= difficulty === 'medium' ? 'active' : '' %>"
+                                    onclick="selectDiff('medium')" id="btn-medium">
+                                <span class="diff-emoji">🟡</span>
+                                <span class="diff-name">Medium</span>
+                                <span class="diff-status">
+                                    <%= difficulty === 'medium' ? '✓ Active' : 'Filter bypass' %>
+                                </span>
+                            </button>
+                            <button class="admin-diff-btn hard <%= difficulty === 'hard' ? 'active' : '' %>"
+                                    onclick="selectDiff('hard')" id="btn-hard">
+                                <span class="diff-emoji">🔴</span>
+                                <span class="diff-name">Hard</span>
+                                <span class="diff-status">
+                                    <%= difficulty === 'hard' ? '✓ Active' : 'Advanced attacks' %>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="lock-toggle">
+                            <label for="lockSwitch">🔒 Lock difficulty (prevent users from changing)</label>
+                            <label class="lock-switch">
+                                <input type="checkbox" id="lockSwitch" <%= difficultyLocked ? 'checked' : '' %>>
+                                <span class="lock-slider"></span>
+                            </label>
+                        </div>
+
+                        <button class="diff-save-btn" onclick="saveDifficulty()">
+                            💾 Save Security Settings
+                        </button>
+                        <div class="diff-success-msg" id="diffSuccessMsg">✅ Settings saved!</div>
                     </div>
                 </section>
 
-                <!-- Pending Card Approvals -->
-                <section class="section" id="cards">
+                <!-- ══════════════════════════════════════════ -->
+                <!-- Pending Loan Approvals                     -->
+                <!-- ══════════════════════════════════════════ -->
+                <section class="section" id="loans">
                     <div class="section-header">
-                        <h2>Pending Credit Card Applications</h2>
-                        <span class="count-badge">
-                            <%= pendingCards.length %>
-                        </span>
+                        <h2>Pending Loan Applications</h2>
+                        <span class="count-badge"><%= pendingLoans.length %></span>
                     </div>
 
                     <div class="table-container">
-                        <% if (pendingCards.length===0) { %>
-                            <p class="no-data">No pending card applications</p>
-                            <% } else { %>
-                                <table class="data-table">
-                                    <thead>
+                        <% if (pendingLoans.length === 0) { %>
+                            <p class="no-data">No pending loan applications</p>
+                        <% } else { %>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Applicant</th><th>Email</th><th>Amount</th>
+                                        <th>Purpose</th><th>Credit Score</th>
+                                        <th>Applied</th><th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% pendingLoans.forEach(loan => { %>
                                         <tr>
-                                            <th>Applicant</th>
-                                            <th>Email</th>
-                                            <th>Card Type</th>
-                                            <th>Credit Limit</th>
-                                            <th>Credit Score</th>
-                                            <th>Applied Date</th>
-                                            <th>Actions</th>
+                                            <td><%= loan.full_name %></td>
+                                            <td><%= loan.email %></td>
+                                            <td class="amount">$<%= loan.amount.toFixed(2) %></td>
+                                            <td><%- loan.purpose %></td><!-- XSS: unescaped <%- %> -->
+                                            <td>
+                                                <span class="credit-score <%= loan.credit_score > 700 ? 'excellent' : loan.credit_score > 650 ? 'good' : 'fair' %>">
+                                                    <%= loan.credit_score %>
+                                                </span>
+                                            </td>
+                                            <td><%= new Date(loan.applied_at).toLocaleDateString() %></td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <form action="/admin/approve-loan/<%= loan.id %>" method="POST" style="display:inline">
+                                                        <input type="hidden" name="action" value="approve">
+                                                        <input type="hidden" name="notes" value="Approved by admin">
+                                                        <button type="submit" class="btn-approve">✓ Approve</button>
+                                                    </form>
+                                                    <form action="/admin/approve-loan/<%= loan.id %>" method="POST" style="display:inline">
+                                                        <input type="hidden" name="action" value="reject">
+                                                        <input type="hidden" name="notes" value="Insufficient documentation">
+                                                        <button type="submit" class="btn-reject">✗ Reject</button>
+                                                    </form>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% pendingCards.forEach(card=> { %>
-                                            <tr>
-                                                <td>
-                                                    <%= card.full_name %>
-                                                </td>
-                                                <td>
-                                                    <%= card.email %>
-                                                </td>
-                                                <td><span class="card-type-badge <%= card.card_type %>">
-                                                        <%= card.card_type.toUpperCase() %>
-                                                    </span></td>
-                                                <td class="amount">$<%= card.credit_limit.toFixed(2) %>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="credit-score <%= card.credit_score > 700 ? 'excellent' : card.credit_score > 650 ? 'good' : 'fair' %>">
-                                                        <%= card.credit_score %>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <%= new Date(card.created_at).toLocaleDateString() %>
-                                                </td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                        <form action="/admin/approve-card/<%= card.id %>" method="POST"
-                                                            style="display: inline;">
-                                                            <input type="hidden" name="action" value="approve">
-                                                            <button type="submit" class="btn-approve">✓ Approve</button>
-                                                        </form>
-                                                        <form action="/admin/approve-card/<%= card.id %>" method="POST"
-                                                            style="display: inline;">
-                                                            <input type="hidden" name="action" value="reject">
-                                                            <button type="submit" class="btn-reject">✗ Reject</button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                    </tbody>
-                                </table>
-                                <% } %>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        <% } %>
+                    </div>
+                </section>
+
+                <!-- ══════════════════════════════════════════ -->
+                <!-- Pending Card Approvals                     -->
+                <!-- ══════════════════════════════════════════ -->
+                <section class="section" id="cards">
+                    <div class="section-header">
+                        <h2>Pending Credit Card Applications</h2>
+                        <span class="count-badge"><%= pendingCards.length %></span>
+                    </div>
+
+                    <div class="table-container">
+                        <% if (pendingCards.length === 0) { %>
+                            <p class="no-data">No pending card applications</p>
+                        <% } else { %>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Applicant</th><th>Email</th><th>Card Type</th>
+                                        <th>Credit Limit</th><th>Credit Score</th><th>Applied</th><th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% pendingCards.forEach(card => { %>
+                                        <tr>
+                                            <td><%= card.full_name %></td>
+                                            <td><%= card.email %></td>
+                                            <td><span class="card-type-badge <%= card.card_type %>"><%= card.card_type.toUpperCase() %></span></td>
+                                            <td class="amount">$<%= card.credit_limit.toFixed(2) %></td>
+                                            <td>
+                                                <span class="credit-score <%= card.credit_score > 700 ? 'excellent' : card.credit_score > 650 ? 'good' : 'fair' %>">
+                                                    <%= card.credit_score %>
+                                                </span>
+                                            </td>
+                                            <td><%= new Date(card.created_at).toLocaleDateString() %></td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <form action="/admin/approve-card/<%= card.id %>" method="POST" style="display:inline">
+                                                        <input type="hidden" name="action" value="approve">
+                                                        <button type="submit" class="btn-approve">✓ Approve</button>
+                                                    </form>
+                                                    <form action="/admin/approve-card/<%= card.id %>" method="POST" style="display:inline">
+                                                        <input type="hidden" name="action" value="reject">
+                                                        <button type="submit" class="btn-reject">✗ Reject</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        <% } %>
                     </div>
                 </section>
 
                 <!-- Create New User -->
                 <section class="section">
-                    <div class="section-header">
-                        <h2>Create New User</h2>
-                    </div>
-
+                    <div class="section-header"><h2>Create New User</h2></div>
                     <div class="create-user-container">
                         <form action="/admin/create-user" method="POST" class="create-user-form">
                             <div class="form-row">
@@ -269,7 +282,6 @@
                                     <input type="email" name="email" required placeholder="user@example.com">
                                 </div>
                             </div>
-
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Password</label>
@@ -280,7 +292,6 @@
                                     <input type="number" name="balance" step="0.01" placeholder="10000.00">
                                 </div>
                             </div>
-
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Credit Score</label>
@@ -293,7 +304,6 @@
                                     </label>
                                 </div>
                             </div>
-
                             <button type="submit" class="btn-create-user">Create User</button>
                         </form>
                     </div>
@@ -303,55 +313,38 @@
                 <section class="section" id="users">
                     <div class="section-header">
                         <h2>All Users</h2>
-                        <span class="count-badge">
-                            <%= users.length %>
-                        </span>
+                        <span class="count-badge"><%= users.length %></span>
                     </div>
-
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Account Number</th>
-                                    <th>Balance</th>
-                                    <th>Credit Score</th>
-                                    <th>Role</th>
+                                    <th>ID</th><th>Name</th><th>Email</th><th>Account Number</th>
+                                    <th>Balance</th><th>Credit Score</th><th>Role</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <% users.forEach(user=> { %>
+                                <% users.forEach(u => { %>
                                     <tr>
-                                        <td>#<%= user.id %>
-                                        </td>
+                                        <td>#<%= u.id %></td>
+                                        <td><%= u.full_name %></td>
+                                        <td><%= u.email %></td>
+                                        <td class="account-number"><%= u.account_number %></td>
+                                        <td class="amount">$<%= u.balance.toFixed(2) %></td>
                                         <td>
-                                            <%= user.full_name %>
-                                        </td>
-                                        <td>
-                                            <%= user.email %>
-                                        </td>
-                                        <td class="account-number">
-                                            <%= user.account_number %>
-                                        </td>
-                                        <td class="amount">$<%= user.balance.toFixed(2) %>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="credit-score <%= user.credit_score > 700 ? 'excellent' : user.credit_score > 650 ? 'good' : 'fair' %>">
-                                                <%= user.credit_score %>
+                                            <span class="credit-score <%= u.credit_score > 700 ? 'excellent' : u.credit_score > 650 ? 'good' : 'fair' %>">
+                                                <%= u.credit_score %>
                                             </span>
                                         </td>
                                         <td>
-                                            <% if (user.is_admin) { %>
+                                            <% if (u.is_admin) { %>
                                                 <span class="badge admin-badge">Admin</span>
-                                                <% } else { %>
-                                                    <span class="badge user-badge">User</span>
-                                                    <% } %>
+                                            <% } else { %>
+                                                <span class="badge user-badge">User</span>
+                                            <% } %>
                                         </td>
                                     </tr>
-                                    <% }); %>
+                                <% }); %>
                             </tbody>
                         </table>
                     </div>
@@ -359,54 +352,97 @@
 
                 <!-- Recent Transactions -->
                 <section class="section" id="transactions">
-                    <div class="section-header">
-                        <h2>Recent Transactions</h2>
-                    </div>
-
+                    <div class="section-header"><h2>Recent Transactions</h2></div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>From</th>
-                                    <th>To</th>
-                                    <th>Amount</th>
-                                    <th>Type</th>
-                                    <th>Notes</th>
-                                    <th>Date</th>
-                                </tr>
+                                <tr><th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Type</th><th>Notes</th><th>Date</th></tr>
                             </thead>
                             <tbody>
-                                <% transactions.forEach(tx=> { %>
+                                <% transactions.forEach(tx => { %>
                                     <tr>
-                                        <td>#<%= tx.id %>
-                                        </td>
-                                        <td>
-                                            <%= tx.from_name || 'N/A' %>
-                                        </td>
-                                        <td>
-                                            <%= tx.to_name || 'N/A' %>
-                                        </td>
-                                        <td class="amount">$<%= tx.amount.toFixed(2) %>
-                                        </td>
-                                        <td><span class="type-badge">
-                                                <%= tx.transaction_type %>
-                                            </span></td>
-                                        <td>
-                                            <%= tx.notes || '-' %>
-                                        </td>
-                                        <td>
-                                            <%= new Date(tx.created_at).toLocaleDateString() %>
-                                        </td>
+                                        <td>#<%= tx.id %></td>
+                                        <td><%= tx.from_name || 'N/A' %></td>
+                                        <td><%= tx.to_name || 'N/A' %></td>
+                                        <td class="amount">$<%= tx.amount.toFixed(2) %></td>
+                                        <td><span class="type-badge"><%= tx.transaction_type %></span></td>
+                                        <td><%= tx.notes || '—' %></td>
+                                        <td><%= new Date(tx.created_at).toLocaleDateString() %></td>
                                     </tr>
-                                    <% }); %>
+                                <% }); %>
                             </tbody>
                         </table>
                     </div>
                 </section>
+
+                <!-- Audit Log -->
+                <section class="section" id="audit">
+                    <div class="section-header">
+                        <h2>🔍 Audit Log</h2>
+                        <span class="count-badge"><%= auditLogs.length %></span>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Time</th><th>User</th><th>IP</th><th>Action</th><th>Severity</th><th>Payload</th></tr>
+                            </thead>
+                            <tbody>
+                                <% auditLogs.forEach(log => { %>
+                                    <tr style="<%= log.severity === 'critical' ? 'background:rgba(255,0,0,0.06)' : log.severity === 'warning' ? 'background:rgba(255,160,0,0.06)' : '' %>">
+                                        <td style="font-size:11px"><%= new Date(log.created_at).toLocaleString() %></td>
+                                        <td><%= log.full_name || log.user_id || '—' %></td>
+                                        <td style="font-size:11px;color:#64748b"><%= log.ip_address %></td>
+                                        <td><code style="font-size:11px;background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px"><%= log.action %></code></td>
+                                        <td>
+                                            <span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;
+                                                background:<%= log.severity==='critical'?'rgba(255,0,0,0.2)':log.severity==='warning'?'rgba(255,160,0,0.2)':'rgba(100,116,139,0.2)' %>;
+                                                color:<%= log.severity==='critical'?'#ff5555':log.severity==='warning'?'#ffd700':'#94a3b8' %>">
+                                                <%= log.severity.toUpperCase() %>
+                                            </span>
+                                        </td>
+                                        <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#64748b">
+                                            <%= log.payload || '—' %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
             </div>
         </main>
     </div>
+
+    <script>
+        let selectedDiff = '<%= difficulty %>';
+
+        function selectDiff(level) {
+            selectedDiff = level;
+            ['easy','medium','hard'].forEach(l => {
+                const btn = document.getElementById(`btn-${l}`);
+                btn.className = `admin-diff-btn ${l}${l === level ? ' active' : ''}`;
+            });
+        }
+
+        async function saveDifficulty() {
+            const lock = document.getElementById('lockSwitch').checked;
+            const response = await fetch('/admin/set-difficulty', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ level: selectedDiff, lock: lock ? 'true' : 'false' })
+            });
+            const result = await response.json();
+            if (result.success) {
+                const msg = document.getElementById('diffSuccessMsg');
+                msg.style.display = 'block';
+                setTimeout(() => window.location.reload(), 1200);
+            } else {
+                alert(result.error || 'Failed to save settings');
+            }
+        }
+    </script>
+    <script src="/js/difficulty.js"></script>
 </body>
 
 </html>

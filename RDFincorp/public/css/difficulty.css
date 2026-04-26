@@ -1,0 +1,251 @@
+/* ─── Difficulty Badge (floating) ─────────────────────────── */
+.difficulty-badge {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 10px;
+    border-radius: 50px;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    user-select: none;
+    border: none;
+    text-transform: uppercase;
+}
+.difficulty-badge:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(0,0,0,0.45); }
+
+.difficulty-badge.easy   { background: linear-gradient(135deg, #00c853, #00e676); color: #002f14; }
+.difficulty-badge.medium { background: linear-gradient(135deg, #ff8f00, #ffd740); color: #2c1a00; }
+.difficulty-badge.hard   { background: linear-gradient(135deg, #d50000, #ff1744); color: #fff; }
+
+.difficulty-badge .badge-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.2);
+    animation: pulse-dot 2s infinite;
+}
+.difficulty-badge.easy .badge-dot   { background: rgba(0,0,0,0.25); }
+.difficulty-badge.medium .badge-dot { background: rgba(0,0,0,0.25); }
+.difficulty-badge.hard .badge-dot   { background: rgba(255,255,255,0.4); }
+
+@keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.difficulty-badge .lock-icon {
+    font-size: 10px;
+    margin-left: 2px;
+}
+
+/* ─── Difficulty Panel (popup) ────────────────────────────── */
+.difficulty-panel {
+    position: fixed;
+    top: 54px;
+    right: 16px;
+    z-index: 9998;
+    background: #1a1d2e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px;
+    width: 280px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    display: none;
+    animation: slide-down 0.2s ease;
+}
+.difficulty-panel.visible { display: block; }
+
+@keyframes slide-down {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.difficulty-panel h3 {
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.difficulty-options { display: flex; flex-direction: column; gap: 8px; }
+
+.diff-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+}
+.diff-btn:hover  { background: rgba(255,255,255,0.09); transform: translateX(2px); }
+.diff-btn:active { transform: scale(0.98); }
+
+.diff-btn.active-easy   { border-color: #00e676; background: rgba(0,200,83,0.12); }
+.diff-btn.active-medium { border-color: #ffd740; background: rgba(255,143,0,0.12); }
+.diff-btn.active-hard   { border-color: #ff1744; background: rgba(213,0,0,0.12); }
+
+.diff-btn .diff-icon { font-size: 20px; }
+.diff-btn .diff-info { flex: 1; }
+.diff-btn .diff-label { font-weight: 700; display: block; font-size: 13px; }
+.diff-btn .diff-desc  { font-size: 11px; color: #94a3b8; margin-top: 2px; display: block; }
+
+.diff-btn .diff-check {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+}
+.diff-btn.active-easy .diff-check   { background: #00e676; border-color: #00e676; color: #002f14; }
+.diff-btn.active-medium .diff-check { background: #ffd740; border-color: #ffd740; color: #2c1a00; }
+.diff-btn.active-hard .diff-check   { background: #ff1744; border-color: #ff1744; color: #fff; }
+
+.diff-locked-msg {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: rgba(255,71,71,0.1);
+    border: 1px solid rgba(255,71,71,0.3);
+    border-radius: 8px;
+    font-size: 11px;
+    color: #ff8a80;
+    text-align: center;
+}
+
+.diff-vuln-info {
+    margin-top: 14px;
+    padding: 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.diff-vuln-info .vuln-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+.diff-vuln-info .vuln-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin: 2px;
+    background: rgba(100,116,139,0.2);
+    color: #94a3b8;
+}
+.diff-vuln-info.easy .vuln-tag   { background: rgba(0,200,83,0.15); color: #69f0ae; }
+.diff-vuln-info.medium .vuln-tag { background: rgba(255,143,0,0.15); color: #ffd54f; }
+.diff-vuln-info.hard .vuln-tag   { background: rgba(213,0,0,0.15);   color: #ff8a80; }
+
+/* ─── Admin Difficulty Control (in admin panel) ────────────── */
+.security-settings-card {
+    background: linear-gradient(135deg, #1a1d2e, #0f1117);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+}
+.security-settings-card h2 {
+    color: #e2e8f0;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.admin-diff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+.admin-diff-btn {
+    padding: 18px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.04);
+    color: #e2e8f0;
+}
+.admin-diff-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.admin-diff-btn.easy   { border-color: rgba(0,200,83,0.4); }
+.admin-diff-btn.medium { border-color: rgba(255,143,0,0.4); }
+.admin-diff-btn.hard   { border-color: rgba(213,0,0,0.4); }
+.admin-diff-btn.active.easy   { background: rgba(0,200,83,0.15);  border-color: #00e676; }
+.admin-diff-btn.active.medium { background: rgba(255,143,0,0.15); border-color: #ffd740; }
+.admin-diff-btn.active.hard   { background: rgba(213,0,0,0.15);   border-color: #ff1744; }
+
+.admin-diff-btn .diff-emoji  { font-size: 28px; display: block; margin-bottom: 8px; }
+.admin-diff-btn .diff-name   { font-size: 14px; font-weight: 700; display: block; }
+.admin-diff-btn .diff-status { font-size: 11px; color: #64748b; display: block; margin-top: 4px; }
+
+.lock-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.lock-toggle label { color: #94a3b8; font-size: 13px; flex: 1; }
+.lock-switch { position: relative; width: 44px; height: 24px; }
+.lock-switch input { opacity: 0; width: 0; height: 0; }
+.lock-slider {
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 24px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.lock-slider:before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+.lock-switch input:checked + .lock-slider { background: #ff1744; }
+.lock-switch input:checked + .lock-slider:before { transform: translateX(20px); }
+
+.diff-save-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #4c6fff, #6c5ce7);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.diff-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.diff-success-msg { display: none; color: #00e676; font-size: 12px; text-align: center; margin-top: 8px; }

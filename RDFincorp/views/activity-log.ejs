@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Activity Log — RDFincorp Banking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/difficulty.css">
+</head>
+<body data-difficulty="<%= difficulty %>" data-locked="<%= difficultyLocked %>">
+<div class="dashboard">
+    <aside class="sidebar">
+        <div class="logo">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="18" stroke="#4c6fff" stroke-width="2" />
+                <path d="M20 10 L20 30 M12 20 L28 20" stroke="#4c6fff" stroke-width="2" />
+            </svg>
+            <span>RDFincorp</span>
+        </div>
+        <nav class="nav-menu">
+            <a href="/user/dashboard" class="nav-item"><span class="icon">📊</span><span>Dashboard</span></a>
+            <a href="/user/activity" class="nav-item active"><span class="icon">📋</span><span>Activity Log</span></a>
+            <a href="/user/apply-card" class="nav-item"><span class="icon">🎴</span><span>Apply Card</span></a>
+            <a href="/user/apply-loan" class="nav-item"><span class="icon">💰</span><span>Apply Loan</span></a>
+            <a href="/user/profile" class="nav-item"><span class="icon">👤</span><span>Profile</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/auth/logout" class="nav-item"><span class="icon">🚪</span><span>Logout</span></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <h1>Activity Log</h1>
+            <div class="user-info">
+                <span class="user-name"><%= user.full_name %></span>
+                <div class="user-avatar"><%= user.full_name.charAt(0) %></div>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <!-- Viewing Info -->
+            <div class="balance-card main-balance" style="margin-bottom:20px">
+                <p class="label">Account Overview</p>
+                <h2 style="font-size:20px;margin:4px 0"><%= targetUser.full_name %></h2>
+                <p style="color:#64748b;font-size:13px">Transaction history and loan applications</p>
+            </div>
+
+            <!-- Transactions Table -->
+            <section class="transactions-section">
+                <div class="section-header">
+                    <h3>Transaction History (<%= transactions.length %> records)</h3>
+                </div>
+                <div class="transactions-list">
+                    <% if (transactions.length === 0) { %>
+                        <p class="no-data">No transactions found for this account.</p>
+                    <% } else { %>
+                        <% transactions.forEach(tx => { %>
+                            <div class="transaction-item">
+                                <div class="tx-icon"><%= tx.from_user_id == targetUser.id ? '→' : '←' %></div>
+                                <div class="tx-info">
+                                    <p class="tx-name">
+                                        <% if (tx.from_user_id == targetUser.id) { %>
+                                            To: <%= tx.to_name || 'Unknown' %> (<%= tx.to_account || '' %>)
+                                        <% } else { %>
+                                            From: <%= tx.from_name || 'Unknown' %> (<%= tx.from_account || '' %>)
+                                        <% } %>
+                                    </p>
+                                    <p class="tx-date"><%= new Date(tx.created_at).toLocaleString() %></p>
+                                    <% if (tx.notes) { %><p style="font-size:11px;color:#64748b"><%= tx.notes %></p><% } %>
+                                </div>
+                                <div class="tx-amount <%= tx.from_user_id == targetUser.id ? 'negative' : 'positive' %>">
+                                    <%= tx.from_user_id == targetUser.id ? '-' : '+' %>$<%= tx.amount.toFixed(2) %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </section>
+
+            <!-- Loan History -->
+            <section style="margin-top:24px">
+                <div class="section-header">
+                    <h3>Loan Applications (<%= loans.length %> records)</h3>
+                </div>
+                <% if (loans.length === 0) { %>
+                    <p class="no-data">No loan applications found.</p>
+                <% } else { %>
+                    <% loans.forEach(loan => { %>
+                        <div class="notification-item <%= loan.status %>" style="margin-bottom:10px">
+                            <div class="notif-icon">
+                                <%= loan.status === 'approved' ? '✅' : loan.status === 'rejected' ? '❌' : '⏳' %>
+                            </div>
+                            <div class="notif-content">
+                                <p class="notif-title">$<%= loan.amount.toFixed(2) %> — <%= loan.purpose %></p>
+                                <p class="notif-details">Status: <strong><%= loan.status.toUpperCase() %></strong></p>
+                                <% if (loan.admin_notes) { %><p class="notif-notes"><%= loan.admin_notes %></p><% } %>
+                            </div>
+                            <div class="notif-date"><%= new Date(loan.applied_at).toLocaleDateString() %></div>
+                        </div>
+                    <% }); %>
+                <% } %>
+            </section>
+        </div>
+    </main>
+</div>
+<script src="/js/difficulty.js"></script>
+</body>
+</html>
